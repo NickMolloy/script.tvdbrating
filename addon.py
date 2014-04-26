@@ -48,7 +48,7 @@ class myPlayer(xbmc.Player):
         ret = dialog.select('Select a rating:', ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10'])
         rating = ret + 1
 
-        t = tvdb_api.Tvdb()
+        t = tvdb_api.Tvdb(apikey='0F7BE09C80105D50')
         episode = t[self.show_name][self.season][self.episode]
         self.item_id = episode['id']
 
