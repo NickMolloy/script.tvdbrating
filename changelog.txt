@@ -1,0 +1,9 @@
+v0.0.3
+- Changed from using pycurl to urllib2
+- added tvdb_api directly to addon
+
+v0.0.2
+- Changed xbmc current item query to use python implementation for json request
+
+v0.0.1
+- Initial version
