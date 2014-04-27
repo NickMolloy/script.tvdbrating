@@ -1,3 +1,9 @@
+v0.0.4
+- Made addon re-get the 'account id' setting and 'minimum watched percentage' each time they are used so that setting changes are reflected immediately
+- Added simple checking that a sensible rating was returned, and that the account id supplied is of correct length
+- Rating dialog now shows the name of the item you are rating
+- Added check that the item being watched really is a TV show
+
 v0.0.3
 - Changed from using pycurl to urllib2
 - added tvdb_api directly to addon
