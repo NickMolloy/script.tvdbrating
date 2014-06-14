@@ -43,7 +43,16 @@ class myPlayer(xbmc.Player):
 
     def rateItem(self):
         dialog = xbmcgui.Dialog()
-        item_name = self.show_name + " - " + "S" + str(self.season) + "E" + str(self.episode) + " - " + "'" + self.episode_title +"'"
+        season = self.season
+        episode = self.episode
+
+        if (season < 10):
+            season = "0" + str(season)
+
+        if (episode < 10):
+            episode = "0" + str(episode)
+
+        item_name = self.show_name + " - " + "S" + str(season) + "E" + str(episode) + " - " + "'" + self.episode_title +"'"
         rating = dialog.select('Select a rating for:\n%s' % item_name, ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10'])
         if ((rating >= 0) and (rating <= 10)):
             t = tvdb_api.Tvdb(apikey='0F7BE09C80105D50')
