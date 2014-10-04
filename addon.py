@@ -9,8 +9,29 @@ import xbmcgui
 __addon__ = xbmcaddon.Addon("script.tvdbrating")
 __addonpath__ = __addon__.getAddonInfo('path').decode('utf-8')
 sys.path.append(os.path.join(__addonpath__, "resources/lib/tvdb_api"))
-
+sys.path.append(os.path.join(__addonpath__, "resources/lib/tvdb_login"))
 import tvdb_api
+import tvdbauthenticate
+
+percentage_limit = int(__addon__.getSetting("percentage_limit"))
+display_past_rating = str(__addon__.getSetting("get_previous"))
+allow_past_rating = __addon__.getSetting("rate_if_previous")
+tvdb_username = __addon__.getSetting("tvdb_username")
+tvdb_password = __addon__.getSetting("tvdb_password")
+tvdb = tvdbauthenticate.TVDB(tvdb_username, tvdb_password)
+account_id = tvdb.get_user_id()
+
+if (tvdb_username == ""):
+    xbmc.executebuiltin('Notification(TVDB Rating,No username given!,5000)')
+    sys.exit(1)
+elif (tvdb_password == ""):
+    xbmc.executebuiltin('Notification(TVDB Rating,No password given!,5000)')
+    sys.exit(1)
+elif (account_id == -1):
+    xbmc.executebuiltin('Notification(TVDB Rating,Unable to get user account id,5000)')
+    sys.exit(1)
+
+rating_url = "http://thetvdb.com/api/User_Rating.php?accountid="
 
 
 class myPlayer(xbmc.Player):
@@ -33,7 +54,6 @@ class myPlayer(xbmc.Player):
                 self.isTvShow = True
 
     def onPlayBackStopped(self):
-        percentage_limit = int(__addon__.getSetting("percentage_limit"))
         if (((current_time / self.total_time) * 100 > percentage_limit) and self.isTvShow):
             self.rateItem()
 
@@ -48,27 +68,35 @@ class myPlayer(xbmc.Player):
 
         if (season < 10):
             season = "0" + str(season)
-
         if (episode < 10):
             episode = "0" + str(episode)
 
+        t = tvdb_api.Tvdb(apikey='0F7BE09C80105D50')
+        episode_data = t[self.show_name][self.season][self.episode]
+        self.item_id = episode_data['id']
+
+        if (display_past_rating == "true"):
+            episode_url = "http://thetvdb.com/?tab=episode&seriesid=" + episode_data['seriesid'] + "&seasonid=" + episode_data['seasonid'] + "&id=" + episode_data['id']
+            previous_rating = tvdb.get_user_rating(episode_url)
+            was_rated = True
+            if (previous_rating == -1):
+                was_rated = False
+            elif (allow_past_rating == "false"):
+                return
+
         item_name = self.show_name + " - " + "S" + str(season) + "E" + str(episode) + " - " + "'" + self.episode_title +"'"
-        rating = dialog.select('Select a rating for:\n%s' % item_name, ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10'])
-        if ((rating >= 0) and (rating <= 10)):
-            t = tvdb_api.Tvdb(apikey='0F7BE09C80105D50')
-            episode = t[self.show_name][self.season][self.episode]
-            self.item_id = episode['id']
-            account_id = __addon__.getSetting("tvdbaccountid")
+        if (display_past_rating == "true" and was_rated):
+            rating = dialog.select('%s\n Previous rating: %s' % (item_name, previous_rating), ['No rating (clears previous)', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10'])
+        else:
+            rating = dialog.select('Select a rating for:\n%s' % item_name, ['No rating', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10'])
+
             if ((len(account_id) > 15) and (len(account_id) < 33)):
-                url = str("http://thetvdb.com/api/User_Rating.php?accountid=" + account_id + "&itemtype=episode&itemid=" + self.item_id + "&rating=" + str(rating))
+                url = str(rating_url + account_id + "&itemtype=episode&itemid=" + self.item_id + "&rating=" + str(rating))
                 req = urllib2.Request(url)
                 urllib2.urlopen(req)
             else:
                 # Invalid length for tvdb account identifier
                 pass
-        else:
-            # Invalid rating returned, so do nothing
-            pass
 
 
 player = myPlayer()

@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <strings>
 	<string id="32001">General</string>
-	<string id="32011">TVDB accound id: </string>
+	<string id="32011">TVDB username: </string>
+	<string id="32012">TVDB password: </string>
 	<string id="32013">Minimum percentage watched to rate: </string>
+	<string id="32014">Enable rating if item previously rated</string>
+	<string id="32015">Show previous rating if item previously rated</string>
 </strings>
