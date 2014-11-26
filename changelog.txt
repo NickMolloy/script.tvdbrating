@@ -1,3 +1,6 @@
+v0.0.6
+-Stability improvements
+
 v0.0.5
 - Removed need for entering account id in settings. Instead regular username/password is used
 - Can now prevent dialog showing for episodes already rated
